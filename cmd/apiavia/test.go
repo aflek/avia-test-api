@@ -8,6 +8,17 @@ import (
 	"encoding/json"
 )
 
+var listOfTests []testParams
+//ListOfTests - Структура списка тестов
+type testParams struct {
+	NodeKey     string `json:"node_key"`
+    URI         string `json:"uri"`
+    Params      string `json:"params"`
+    Descriprion string `json:"descriprion"`
+    RqCode     string  `json:"rq_code"`
+    AvailConfig int    `json:"avail_config"`
+}
+
 func test() {
 	//Перебор файлов (сценариев тестирования) в папке tests
 	//Тестировани запускается командой ./apiavia -a=test
