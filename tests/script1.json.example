@@ -1,0 +1,10 @@
+[
+    {
+        "node_key" : "",
+		"uri" : "http://......./search?",
+		"params" : "2MOWDXB20012021DXBMOW27012021200",
+        "descriprion" : "MOW-DXB для нода XX",
+        "rq_code" : "AVIA_API_SEARCH",
+        "avail_config": 11
+    }
+]	

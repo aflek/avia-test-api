@@ -1,0 +1,13 @@
+[
+	{
+		"rq_code": "CACHE_WARMING",
+		"descriprion": "MOW-DXB вылеты с 01-02-2021 по 28-02-2021",
+		"from": "MOW",
+		"to": "DXB",
+		"start_date": "01022021",
+		"end_date":  "28022021",
+		"durations": [4,5,6,7],
+		"node_key" : "",
+		"cahe_key" : ""
+	}
+]

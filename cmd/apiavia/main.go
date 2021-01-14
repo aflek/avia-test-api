@@ -12,9 +12,9 @@ func main() {
 	//fmt.Println("flagAction:", *flagAction)
 	switch *flagAction {
 	case "cw":
-		cachWarming()//Прогрев кэша
+		cachWarming()//Прогрев кэша. Процесс генерации запускается командой (cw - cache warming): ./apiavia -a=cw
 	case "test":
-		test()//Выполнение тестов по скритам в файлах каталога tests
+		test()//Выполнение тестов по скритам в файлах каталога tests. ./apiavia -a=test
 	}
 }
 
