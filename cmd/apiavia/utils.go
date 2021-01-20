@@ -75,16 +75,17 @@ func StrToTimeMonth(mm string) (time.Month, error) {
 	return m, nil
 }
 
-//Преобразование даты в строку
-func dateToStr(dt time.Time) string {
+//Преобразование даты в строку. Н-р, dateToStr(time.Now(), "-") вернет текущую дату в формате 23-12-2020
+func dateToStr(dt time.Time, sep string) string {
 
 	d := dt.Day()
 	m := int(dt.Month())
 	y := dt.Year()
-	//return fmt.Sprintf("%v"+"%v"+"%v", d, m, y)
-	return intToDateStr(d) + intToDateStr(m) + fmt.Sprintf("%v", y)
+	return fmt.Sprintf("%v"+sep+"%v"+sep+"%v", intToDateStr(d), intToDateStr(m), y)
+
 }
 
+//Добавление нулей перед числами от 1 до 9
 func intToDateStr(d int) string {
 	if d < 10 {
 		return fmt.Sprintf("0%v", d)
@@ -93,17 +94,17 @@ func intToDateStr(d int) string {
 	return fmt.Sprintf("%v", d)
 }
 
-//strToDate(23122020) вернет дату в формате Time
+//strToDate(23-12-2020) вернет дату в формате Time
 func strToDate(dt string) (time.Time, error) {
 	//1.Строка должна иметь длину 10 сиволов
 	strLen := len(dt)
-	if strLen != 8 {
-		return time.Now(), errors.New("Строка с датой должна быть длиной в 8 символов, включая разделитель, например: 23122021. \nДлина " + dt + " составляет " + strconv.Itoa(strLen) + "симоволов")
+	if strLen != 10 {
+		return time.Now(), errors.New("Строка с датой должна быть длиной в 10 символов, включая разделитель, например: 23-12-2021. \nДлина " + dt + " составляет " + strconv.Itoa(strLen) + "симоволов")
 	}
 	//2. Парсим строку
 	dd := string(dt[0]) + string(dt[1])//Дата
-	mm := string(dt[2]) + string(dt[3])//Месяц
-	yyyy := string(dt[4]) + string(dt[5])+ string(dt[6]) + string(dt[7])//Год
+	mm := string(dt[3]) + string(dt[4])//Месяц
+	yyyy := string(dt[6]) + string(dt[7])+ string(dt[8]) + string(dt[9])//Год
 	//3.Проверка дня - должны быть числа и их должно быть 2.
 	if !StrIsNum(dd) {
 		return time.Now(), errors.New("День '" + dd + "' не является числом")

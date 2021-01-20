@@ -10,10 +10,10 @@ import (
 
 //Reccomendation - Блок с реккомендацией
 type Reccomendation struct {
-	RecID      string  `json:"rec_id"`
-	ConfigID   int     `json:"config_id"`
-	TotalPrice float32 `json:"total_price"`
-	Currency   string  `json:"currency"`
+	RecID      string `json:"rec_id"`
+	ConfigID   int    `json:"config_id"`
+	//TotalPrice string `json:"total_price"`
+	//Currency   string `json:"currency"`
 }
 
 //RecResponse - Ответ на запрос - массив реккомендаций
