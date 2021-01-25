@@ -20,7 +20,27 @@ type Rules struct {
 	NodeKey     string `json:"node_key"`
 	CaheKey     string `json:"cahe_key"`
 	BaseURI     string `json:"base_uri"`
+	SleepTime   int    `json:"sleep_time"`
 }
+
+//Color подсветка в терминале задаваемая с использованием управляющей последовательности ANSI
+// https://en.wikipedia.org/wiki/ANSI_escape_code
+type Color string
+const (
+     //ColorBlack черная подсветка в терминале
+    ColorBlack Color = "\u001b[30m"
+    //ColorRed красная подсветка в терминале
+    ColorRed         = "\u001b[31m"
+    //ColorGreen зеленая подсветка в терминале
+    ColorGreen       = "\u001b[32m"
+    //ColorYellow желтая подсветка в терминале
+    ColorYellow      = "\u001b[33m"
+    //ColorBlue синяя подсветка в терминале
+    ColorBlue        = "\u001b[34m"
+    //ColorReset сброс подсветки в терминале
+    ColorReset       = "\u001b[0m"
+)
+
 
 // cach_warming -...
 func cachWarming() {
@@ -55,9 +75,12 @@ func cachWarming() {
 		//Цикл по датам вылета туда и обратно
 		curDate, _ := strToDate(rule.StartDate); if err != nil { log.Fatal(err) }
 		endDate, _ := strToDate(rule.EndDate); if err != nil { log.Fatal(err) }
+		nTestTotal := 0//Общее количество запросов.
+		nTestCache := 0//Количество успешных запросов к кэш 
+		nTestGDS   := 0//Количество запросов к GDS 
 		for {
 			if (curDate.Unix() > endDate.Unix()) { break }
-
+			nTestTotal++
 			//Цикл по кадому элементу из durations
 			for _, v := range rule.Durations { 
 				//Добавляем к текущей дате "вылета туда" текущее число из число из durations и получаем обратную дату 
@@ -74,8 +97,9 @@ func cachWarming() {
 				searchStr = searchStr + "&destinations[1]arrival=" + rule.From
 				searchStr = searchStr + "&destinations[1]date=" + dBackStr
 				searchStr = searchStr + "&adt=2"
-				fmt.Println(searchStr)
-				fmt.Println("------------------------")
+				//fmt.Println(searchStr)
+				fmt.Println("------------------------------------------------")
+				fmt.Print(rule.From, "-", rule.To, " вылет с " ,dCurStr, " по 	", dBackStr, " /")
 				//Отправка запроса в кэш
 				bodyCache, tCache, err := sendRQ(searchStr, rule.CaheKey); if err != nil { log.Fatal(err) }
 				//fmt.Println(cacheRS)
@@ -88,13 +112,12 @@ func cachWarming() {
 					//fmt.Println(err.Error())
 				}
 				//Анализ структуры
-				fmt.Println(datCache)
-				fmt.Println(len(datCache))
-				fmt.Println(tCache)
-				fmt.Println("------------------------")
+				//fmt.Println(datCache)
+				fmt.Println("Найдено в кэше рекомендаций:", len(datCache), "Время поиска в КЭШе:",tCache)
 				//Если не надено, то ищем в ГДСах
 				if len(datCache) == 0 {
-					fmt.Println("В кэше не надено. Ищем в ГДСах")
+					nTestGDS++
+					fmt.Println(string(ColorBlue), "В кэше не надено. Ищем в ГДСах", string(ColorReset))
 					//Формироуем поисковую строку
 					searchStr := rule.BaseURI + "search?"
 					searchStr = searchStr + "&destinations[0]departure=" + rule.From
@@ -104,7 +127,7 @@ func cachWarming() {
 					searchStr = searchStr + "&destinations[1]arrival=" + rule.From
 					searchStr = searchStr + "&destinations[1]date=" + dBackStr
 					searchStr = searchStr + "&adt=2"
-					fmt.Println(searchStr)
+					//fmt.Println(searchStr)
 					//Отправка запроса в ГДС
 					bodyGDS, tGDS, err := sendRQ(searchStr, rule.CaheKey); if err != nil { log.Fatal(err) }
 					//Парсинг в труктуру
@@ -115,74 +138,24 @@ func cachWarming() {
 						//fmt.Println(err.Error())
 					}
 					//Анализ структуры
-					fmt.Println(datGDS)
-					fmt.Println(len(datGDS))
-					fmt.Println(tGDS)
+					//fmt.Println(datGDS)
+					fmt.Println(string(ColorBlue), "Найдено в GDS рекомендаций:", len(datGDS), string(ColorReset))
+					fmt.Println(string(ColorBlue), "Время поиска в GDS:", tGDS, string(ColorReset))
+				} else {
+					nTestCache++	
 				}
 				//Пауза перед следующей отправкой запроса
-				time.Sleep(5 * time.Second)
+				time.Sleep(time.Duration(rule.SleepTime) * time.Second)
 			}
 
 			curDate = curDate.AddDate(0,0,1)//Сдивигаем дату "вылета туда" на один день вперед
 		}
-
-	/*	
-		//Сформировать массив со строками типа "2MOWDXB20012021DXBMOW27012021200" - параметрами запроса к 
-		arrSearchParams, err := getSearchParams(rule.From, rule.To, rule.StartDate, rule.EndDate, rule.Durations)
-		if err != nil { log.Fatal(err) }
-		//fmt.Println(arrSearchParams)
-		//Поиск по кэшу
-		uri := rule.BaseURI + "cache_search?"
-		fmt.Println(uri)
-		for _, v := range arrSearchParams {
-
-			fmt.Println(v)
-		}
-		//params := arrSearchParams
-	*/	
-		//Если по кэшу ничего не найдено, то выполняем поиск через ГДСы 
-		//Запись результатов тестирования в файл
-	}
-	
-	
-	/*
-	  3. Код тестирования CACHE_WARMING 
-	  Для этого кода тестирования в файле скрипта должен быть параметр проверки данных в писковом кэше.
-	  Если параметр поиска в кэше = true, то делаем сначала поиск в кэше.
-	  Если по кэшу поиск неудачный - ищем в авиа (прогреваем кэш).
-	*/
-}
-
-/*
-func getSearchParams(from, to, startDate, endDate string, durations []int) ([]string, error) {
-	var arrSearchParams []string
-	d, _ := strToDate(startDate)
-	dEndDate, _ := strToDate(endDate)
-	
-	//Цикл от startDate до endDate с шагом 1 день - дата вылета туда
-	for {
-		if (d.Unix() > dEndDate.Unix()) { break }
-		
-		//Цикл по кадому элементу из durations
-		for _, v := range durations {
-			//fmt.Println(v)
-			//Добавляем к текущей дате "вылета туда" текущее число из число из durations и получаем обратную дату 
-			dBack := d.AddDate(0,0,v)
-			//Даты вылетов туа и обратно переводим в строки
-			dStr := dateToStr(d)
-			dBackStr := dateToStr(dBack)
-			//Формироуем поисковую строку
-			searchStr := "2" + from + to + dStr + to + from + dBackStr + "200"
-			//fmt.Println(searchStr)
-			arrSearchParams = append(arrSearchParams, searchStr)
-		}	
-		  
-		
-			
-		d = d.AddDate(0,0,1)	
+		fmt.Println("**************************************************")
+		fmt.Println("Выполнено всего запросов:", nTestTotal)
+		fmt.Println("Выполнено успешных запросов в КЭШ:", nTestCache)
+		fmt.Println("Выполнено запросов к ГДС:", nTestGDS)
+		fmt.Println("**************************************************")
 	}
 
-	return arrSearchParams, nil
 }
 
-*/
