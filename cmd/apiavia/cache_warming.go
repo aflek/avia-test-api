@@ -117,7 +117,7 @@ func cachWarming() {
 				//Если не надено, то ищем в ГДСах
 				if len(datCache) == 0 {
 					nTestGDS++
-					fmt.Println(string(ColorBlue), "В кэше не надено. Ищем в ГДСах", string(ColorReset))
+					fmt.Print(string(ColorBlue), "В кэше не надено. Ищем в ГДСах / ", string(ColorReset))
 					//Формироуем поисковую строку
 					searchStr := rule.BaseURI + "search?"
 					searchStr = searchStr + "&destinations[0]departure=" + rule.From
@@ -139,8 +139,8 @@ func cachWarming() {
 					}
 					//Анализ структуры
 					//fmt.Println(datGDS)
-					fmt.Println(string(ColorBlue), "Найдено в GDS рекомендаций:", len(datGDS), string(ColorReset))
-					fmt.Println(string(ColorBlue), "Время поиска в GDS:", tGDS, string(ColorReset))
+					fmt.Print(string(ColorBlue), "Найдено в GDS рекомендаций:", len(datGDS), string(ColorReset))
+					fmt.Println(string(ColorBlue), " Время поиска в GDS:", tGDS, string(ColorReset))
 				} else {
 					nTestCache++	
 				}
