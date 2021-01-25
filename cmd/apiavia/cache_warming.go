@@ -98,7 +98,7 @@ func cachWarming() {
 				searchStr = searchStr + "&destinations[1]date=" + dBackStr
 				searchStr = searchStr + "&adt=2"
 				//fmt.Println(searchStr)
-				fmt.Println("------------------------------------------------")
+				fmt.Println("------------------------------------------------ ", time.Now())
 				fmt.Print(rule.From, "-", rule.To, " вылет с " ,dCurStr, " по 	", dBackStr, " /")
 				//Отправка запроса в кэш
 				bodyCache, tCache, err := sendRQ(searchStr, rule.CaheKey); if err != nil { log.Fatal(err) }
