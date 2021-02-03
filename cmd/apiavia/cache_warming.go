@@ -80,9 +80,9 @@ func cachWarming() {
 		nTestGDS   := 0//Количество запросов к GDS 
 		for {
 			if (curDate.Unix() > endDate.Unix()) { break }
-			nTestTotal++
 			//Цикл по кадому элементу из durations
-			for _, v := range rule.Durations { 
+			for _, v := range rule.Durations {
+				nTestTotal++ 
 				//Добавляем к текущей дате "вылета туда" текущее число из число из durations и получаем обратную дату 
 				dBack := curDate.AddDate(0,0,v)
 				//Даты вылетов туа и обратно переводим в строки
@@ -98,7 +98,7 @@ func cachWarming() {
 				searchStr = searchStr + "&destinations[1]date=" + dBackStr
 				searchStr = searchStr + "&adt=2"
 				//fmt.Println(searchStr)
-				fmt.Println("------------------------------------------------ ", time.Now())
+				fmt.Println("------------------- ", time.Now(), " -------------------------- ")
 				fmt.Print(rule.From, "-", rule.To, " вылет с " ,dCurStr, " по 	", dBackStr, " /")
 				//Отправка запроса в кэш
 				bodyCache, tCache, err := sendRQ(searchStr, rule.CaheKey); if err != nil { log.Fatal(err) }
@@ -144,6 +144,8 @@ func cachWarming() {
 				} else {
 					nTestCache++	
 				}
+				fmt.Println("Выполнено всего запросов:", nTestTotal, "Выполнено успешных запросов в КЭШ:", nTestCache, "Выполнено запросов к ГДС:", nTestGDS)
+				fmt.Println("Заполнение кэша %:", nTestCache*100/nTestTotal)
 				//Пауза перед следующей отправкой запроса
 				time.Sleep(time.Duration(rule.SleepTime) * time.Second)
 			}

@@ -1,6 +1,7 @@
 configs/*.toml
 tests/*.json
 tests_tpl/*.json
+tests_tpl/plan.txt
 apiavia
 
 # Binaries for programs and plugins
